@@ -31,3 +31,9 @@ export interface Team {
   country: string;
   players: Player[];
 }
+export type TeamFormValues = {
+  name: string;
+  playerCount: number;
+  region: string;
+  country: string;
+};

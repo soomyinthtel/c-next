@@ -16,14 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { addTeam, updateTeam } from "@/store/teamSlice";
 import { toast } from "sonner";
-import { Team } from "@/types";
-
-type TeamFormValues = {
-  name: string;
-  playerCount: number;
-  region: string;
-  country: string;
-};
+import { Team, TeamFormValues } from "@/types";
 
 const formSchema = (teams: Team[], currentTeam?: Team) =>
   z.object({

@@ -17,12 +17,15 @@ import {
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import TeamForm from "./TeamForm";
+import { TeamFormValues } from "@/types";
 
 export default function TeamList() {
   const dispatch = useAppDispatch();
   const teams = useAppSelector((state) => state.teams.teams);
   const [isOpen, setIsOpen] = useState(false);
-  const [editingTeam, setEditingTeam] = useState<null | any>(null);
+  const [editingTeam, setEditingTeam] = useState<
+    undefined | ({ id: string } & TeamFormValues)
+  >(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
 
@@ -34,7 +37,7 @@ export default function TeamList() {
     });
   };
   const handleCreateTeam = () => {
-    setEditingTeam(null);
+    setEditingTeam(undefined);
     setIsOpen(true);
   };
   const handleDelete = (id: string) => {
@@ -70,7 +73,7 @@ export default function TeamList() {
             team={editingTeam}
             onClose={() => {
               setIsOpen(false);
-              setEditingTeam(null);
+              setEditingTeam(undefined);
             }}
           />
         </DialogContent>
@@ -81,9 +84,9 @@ export default function TeamList() {
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this team "
-              {teams.find((t) => t.id === teamToDelete)?.name}"? This action
-              cannot be undone.
+              Are you sure you want to delete this team &quot;
+              {teams.find((t) => t.id === teamToDelete)?.name}&quot;? This
+              action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

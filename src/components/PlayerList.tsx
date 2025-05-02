@@ -39,6 +39,7 @@ export default function PlayerList() {
     });
 
   useEffect(() => {
+    const currentLoadMoreRef = loadMoreRef.current;
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (
@@ -54,16 +55,16 @@ export default function PlayerList() {
       { threshold: 0.1 }
     );
 
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
+    if (currentLoadMoreRef) {
+      observerRef.current.observe(currentLoadMoreRef);
     }
 
     return () => {
-      if (observerRef.current && loadMoreRef.current) {
-        observerRef.current.unobserve(loadMoreRef.current);
+      if (observerRef.current && currentLoadMoreRef) {
+        observerRef.current.unobserve(currentLoadMoreRef);
       }
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, isFetching]);
 
   const handleAddPlayer = (player: Player, teamId: string) => {
     const isPlayerInTeam = teams.some((team) =>
