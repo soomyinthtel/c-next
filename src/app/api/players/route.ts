@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const searchQuery = searchParams.get("search") || "";
 
   try {
-    let apiUrl = `https://api.balldontlie.io/v1/players?page=${page}&per_page=${perPage}`;
+    let apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/v1/players?page=${page}&per_page=${perPage}`;
     if (searchQuery) {
       apiUrl += `&search=${encodeURIComponent(searchQuery)}`;
     }
