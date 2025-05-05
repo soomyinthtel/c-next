@@ -9,6 +9,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { addPlayerToTeam } from "@/store/teamSlice";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 export default function PlayerList() {
   const dispatch = useAppDispatch();
@@ -20,8 +21,9 @@ export default function PlayerList() {
   const [selectedTeams, setSelectedTeams] = useState<{
     [playerId: number]: string;
   }>({});
+  const [showModal, setShowModal] = useState(false);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["players"],
       queryFn: ({ pageParam = 1 }: { pageParam: number }) =>
@@ -67,6 +69,12 @@ export default function PlayerList() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage, isFetching]);
 
   const handleAddPlayer = (player: Player, teamId: string) => {
+    // Check if there are no teams
+    if (teams.length === 0) {
+      setShowModal(true);
+      return;
+    }
+
     const isPlayerInTeam = teams.some((team) =>
       team.players.some((p) => p.id === player.id)
     );
@@ -78,14 +86,22 @@ export default function PlayerList() {
       setSelectedTeams((prev) => ({ ...prev, [player.id]: "" }));
       return;
     }
-    console.log("Adding player to team", player, teamId);
-    dispatch(addPlayerToTeam({ teamId, player }));
 
+    dispatch(addPlayerToTeam({ teamId, player }));
     toast.success("Success", {
       description: "Player added to team",
     });
     setSelectedTeams((prev) => ({ ...prev, [player.id]: "" }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2">Loading players...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -96,6 +112,24 @@ export default function PlayerList() {
               <CardHeader>
                 <CardTitle>
                   {player.first_name} {player.last_name}
+                  <div className="font-normal mt-2 space-y-2">
+                    <p className="flex gap-2">
+                      <span>Position: </span>
+                      <span>{player.position}</span>
+                    </p>
+                    <p className="flex gap-2">
+                      <span>Height: </span>
+                      <span>{player.height}</span>
+                    </p>
+                    <p className="flex gap-2">
+                      <span>Weight: </span>
+                      <span>{player.weight}</span>
+                    </p>
+                    <p className="flex gap-2">
+                      <span>College: </span>
+                      <span>{player.college}</span>
+                    </p>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex justify-between items-center gap-4">
@@ -117,14 +151,10 @@ export default function PlayerList() {
                   ))}
                 </select>
                 <button
-                  className={`p-2 text-white rounded w-full max-w-fit disabled:cursor-not-allowed ${
-                    selectedTeams[player.id] ? "bg-gray-500" : "bg-gray-300"
-                  }`}
+                  className="p-2 text-white rounded w-full max-w-fit bg-gray-500 hover:bg-gray-600"
                   onClick={() =>
-                    handleAddPlayer(player, selectedTeams[player.id])
+                    handleAddPlayer(player, selectedTeams[player.id] || "")
                   }
-                  disabled={!selectedTeams[player.id]}
-                  aria-disabled={!selectedTeams[player.id]}
                 >
                   Add to Team
                 </button>
@@ -139,6 +169,21 @@ export default function PlayerList() {
           <Loader2 className="h-6 w-6 animate-spin" />
           <span className="ml-2">Loading more players...</span>
         </div>
+      )}
+
+      {showModal && (
+        <Dialog open={showModal} onOpenChange={() => setShowModal(false)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>No Teams Available</DialogTitle>
+            </DialogHeader>
+
+            <p className="mb-4">
+              You need to create a team before you can add players. Please
+              create a team first.
+            </p>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
